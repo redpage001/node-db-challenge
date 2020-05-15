@@ -67,16 +67,51 @@ router.get('/:id/tasks', (req, res) => {
 })
 
 router.post('/:id/tasks', (req, res) => {
-    const { task_description, task_notes } = req.body;
+    const { task_description, task_notes, } = req.body;
     const { id } = req.params
 
-    Projects.addTask({task_description, task_notes}, id)
+    Projects.addTask({ task_description, task_notes, }, id)
         .then(newTask => {
             res.status(200).json({ data: newTask })
         })
         .catch(error => {
             console.log({ error })
             res.status(500).json({ message: "Error creating new task for project with specified ID." })
+        })
+})
+
+router.put('/:id', (req, res) => {
+    const { project_name, project_description, project_completed } = req.body;
+    const { id } = req.params;
+
+    Projects.editProject({ project_name, project_description, project_completed }, id)
+        .then(updatedProject => {
+            if(updatedProject) {
+                res.status(200).json({ data: updatedProject })
+            } else {
+                res.status(404).json({ message: "Updated project with the specified ID not found." })
+            }
+        })
+        .catch(error => {
+            console.log({ error })
+            res.status(500).json({ message: "Error updating project with specified ID." })
+        })
+})
+
+router.delete('/:id', (req, res) => {
+    const { id } = req.params;
+
+    Projects.removeProject(id)
+        .then(count => {
+            if(count) {
+                res.status(204).end()
+            } else {
+                res.status(404).json({ message: "Project with specified ID was not found." })
+            }
+        })
+        .catch(error => {
+            console.log({ error })
+            res.status(500).json({ message: "Error deleting project with specified ID." })
         })
 })
 
